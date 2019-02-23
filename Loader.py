@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 
 
-
-def image_loader(device, image_name):
+def image_loader(image_name):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     imsize = 512 if torch.cuda.is_available() else 128
     loader = transforms.Compose([transforms.Resize(imsize), transforms.ToTensor()])
     ratio = 4/3
@@ -19,7 +19,6 @@ def image_loader(device, image_name):
     image = loader(image).unsqueeze(0)
     return image.to(device, torch.float)
 
-
 def imshow(tensor, title=None, save=False):
     plt.figure()
     unloader = transforms.ToPILImage()
@@ -32,3 +31,10 @@ def imshow(tensor, title=None, save=False):
     if title is not None:
         plt.title(title)
     plt.pause(0.001)
+
+def imsave(tensor):
+    unloader = transforms.ToPILImage()
+    image = tensor.cpu().clone()
+    image = image.squeeze(0)
+    image = unloader(image)
+    image.save("output.jpg", "JPEG", optimize=True)

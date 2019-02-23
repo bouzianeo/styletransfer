@@ -45,7 +45,7 @@ class Normalization(nn.Module):
         self.std = torch.tensor(std).view(-1, 1, 1)
 
     def forward(self, img):
-        return (img - self.mean) / self.st
+        return (img - self.mean) / self.std
 
 
 class VGG16(nn.Module):
@@ -58,11 +58,12 @@ class VGG16(nn.Module):
         self.content_layers_default = ['conv_4']
         self.style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
 
-    def get_style_model_and_losses(self, style_img, content_img, normalization_mean=self.cnn_normalization_mean,
-                                   normalization_std=self.cnn_normalization_std,
-                                   content_layers=self.content_layers_default,
-                                   style_layers=self.style_layers_default):
+    def get_style_model_and_losses(self, style_img, content_img):
 
+        normalization_mean = self.cnn_normalization_mean
+        normalization_std = self.cnn_normalization_std
+        content_layers = self.content_layers_default
+        style_layers = self.style_layers_default
         cnn = copy.deepcopy(self.cnn)
 
         normalization = Normalization(normalization_mean, normalization_std).to(self.device)
@@ -110,7 +111,7 @@ class VGG16(nn.Module):
 
         return model, style_losses, content_losses
 
-    def get_input_optimizer(input_img):
+    def get_input_optimizer(self, input_img):
         optimizer = optim.LBFGS([input_img.requires_grad_()])
         return optimizer
 
@@ -148,8 +149,7 @@ class VGG16(nn.Module):
                 run[0] += 1
                 if run[0] % 50 == 0:
                     print("run {}:".format(run))
-                    print('Style Loss : {:4f} Content Loss: {:4f}'.format(
-                        style_score.item(), content_score.item()))
+                    print('Style Loss : {:4f} Content Loss: {:4f}'.format(style_score.item(), content_score.item()))
                     print()
 
                 return style_score + content_score
