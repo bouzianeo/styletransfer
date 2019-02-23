@@ -3,7 +3,7 @@ from VGG import VGG16
 
 
 if __name__ == "__main__":
-    style_img = image_loader("images/kandinsky.jpg")
+    style_img = image_loader("images/The_Great_Wave_off_Kanagawa.jpg")
     content_img = image_loader("images/souki.jpg")
     input_img = content_img.clone()
 
