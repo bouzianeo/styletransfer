@@ -10,7 +10,7 @@ class VGG16(nn.Module):
     def __init__(self, style_img, content_img):
         super(VGG16, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.cnn = models.vgg16(pretrained=True).features.to(self.device).eval()
+        self.cnn = models.vgg19(pretrained=True).features.to(self.device).eval()
         self.content_layers_default = ['conv_4']
         self.style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
 
