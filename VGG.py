@@ -1,72 +1,29 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 import torchvision.models as models
 import copy
-
-
-class ContentLoss(nn.Module):
-
-    def __init__(self, target,):
-        super(ContentLoss, self).__init__()
-        self.target = target.detach()
-
-    def forward(self, input):
-        self.loss = F.mse_loss(input, self.target)
-        return input
-
-
-def gram_matrix(input):
-    a, b, c, d = input.size()
-
-    features = input.view(a * b, c * d)  # resize F_XL into \hat F_XL
-
-    G = torch.mm(features, features.t())
-
-    return G.div(a * b * c * d)
-
-
-class StyleLoss(nn.Module):
-    def __init__(self, target_feature):
-        super(StyleLoss, self).__init__()
-        self.target = gram_matrix(target_feature).detach()
-
-    def forward(self, input):
-        G = gram_matrix(input)
-        self.loss = F.mse_loss(G, self.target)
-        return input
-
-
-class Normalization(nn.Module):
-    def __init__(self, mean, std):
-        super(Normalization, self).__init__()
-        self.mean = torch.tensor(mean).view(-1, 1, 1)
-        self.std = torch.tensor(std).view(-1, 1, 1)
-
-    def forward(self, img):
-        return (img - self.mean) / self.std
+from utils import ContentLoss, StyleLoss, Normalization
 
 
 class VGG16(nn.Module):
-    def __init__(self):
+    def __init__(self, style_img, content_img):
         super(VGG16, self).__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.cnn = models.vgg16(pretrained=True).features.to(self.device).eval()
-        self.cnn_normalization_mean = torch.tensor([0.485, 0.456, 0.406]).to(self.device)
-        self.cnn_normalization_std = torch.tensor([0.229, 0.224, 0.225]).to(self.device)
         self.content_layers_default = ['conv_4']
         self.style_layers_default = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
 
-    def get_style_model_and_losses(self, style_img, content_img):
+        self.model, self.style_losses, self.content_losses = self.build(style_img, content_img)
 
-        normalization_mean = self.cnn_normalization_mean
-        normalization_std = self.cnn_normalization_std
-        content_layers = self.content_layers_default
-        style_layers = self.style_layers_default
+    def build(self, style_img, content_img, content_layers=['conv_4']\
+              , style_layers=['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']):
+        """
+        Build Neural Network
+        """
         cnn = copy.deepcopy(self.cnn)
 
-        normalization = Normalization(normalization_mean, normalization_std).to(self.device)
+        normalization = Normalization().to(self.device)
 
         content_losses = []
         style_losses = []
@@ -74,13 +31,13 @@ class VGG16(nn.Module):
         model = nn.Sequential(normalization)
 
         i = 0
+        # Give name to current layer
         for layer in cnn.children():
             if isinstance(layer, nn.Conv2d):
                 i += 1
                 name = 'conv_{}'.format(i)
             elif isinstance(layer, nn.ReLU):
                 name = 'relu_{}'.format(i)
-
                 layer = nn.ReLU(inplace=False)
             elif isinstance(layer, nn.MaxPool2d):
                 name = 'pool_{}'.format(i)
@@ -88,6 +45,8 @@ class VGG16(nn.Module):
                 name = 'bn_{}'.format(i)
             else:
                 raise RuntimeError('Unrecognized layer: {}'.format(layer.__class__.__name__))
+
+            # Construction of the Neural Network
 
             model.add_module(name, layer)
 
@@ -98,8 +57,8 @@ class VGG16(nn.Module):
                 content_losses.append(content_loss)
 
             if name in style_layers:
-                target_feature = model(style_img).detach()
-                style_loss = StyleLoss(target_feature)
+                target_feature = model(style_img).detach()  # normalized style image
+                style_loss = StyleLoss(target_feature)  # compute style loss
                 model.add_module("style_loss_{}".format(i), style_loss)
                 style_losses.append(style_loss)
 
@@ -108,19 +67,14 @@ class VGG16(nn.Module):
                 break
 
         model = model[:(i + 1)]
+        print(model)
 
         return model, style_losses, content_losses
 
-    def get_input_optimizer(self, input_img):
-        optimizer = optim.LBFGS([input_img.requires_grad_()])
-        return optimizer
+    def forward(self, input_img, num_steps=300, style_weight=10000, content_weight=1):
 
-    def run_style_transfer(self, content_img, style_img, input_img, num_steps=300,
-                           style_weight=1000000, content_weight=1):
-
-        model, style_losses, content_losses = self.get_style_model_and_losses(style_img=style_img,
-                                                                              content_img=content_img)
-        optimizer = self.get_input_optimizer(input_img)
+        # model, style_losses, content_losses = self.build(style_img=style_img, content_img=content_img)
+        optimizer = VGG16.get_input_optimizer(input_img)
 
         print('Optimizing..')
         run = [0]
@@ -131,13 +85,13 @@ class VGG16(nn.Module):
                 input_img.data.clamp_(0, 1)
 
                 optimizer.zero_grad()
-                model(input_img)
+                self.model(input_img)
                 style_score = 0
                 content_score = 0
 
-                for sl in style_losses:
+                for sl in self.style_losses:
                     style_score += sl.loss
-                for cl in content_losses:
+                for cl in self.content_losses:
                     content_score += cl.loss
 
                 style_score *= style_weight
@@ -160,3 +114,7 @@ class VGG16(nn.Module):
 
         return input_img
 
+    @staticmethod
+    def get_input_optimizer(input_img):
+        optimizer = optim.LBFGS([input_img.requires_grad_()])
+        return optimizer

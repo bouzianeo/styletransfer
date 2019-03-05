@@ -13,9 +13,8 @@ if __name__ == "__main__":
     #imshow(style_img, title='Style Image')
     #imshow(content_img, title='Content Image')
 
-    vggdream = VGG16()
+    vggdream = VGG16(style_img, content_img)
 
-    output = vggdream.run_style_transfer(content_img, style_img, input_img, num_steps=300,
-                           style_weight=1000000, content_weight=1)
+    output = vggdream(content_img, num_steps=300, style_weight=1000000, content_weight=1)
 
     imsave(output)
