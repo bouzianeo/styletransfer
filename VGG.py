@@ -16,11 +16,12 @@ class VGG16(nn.Module):
 
         self.model, self.style_losses, self.content_losses = self.build(style_img, content_img)
 
-    def build(self, style_img, content_img, content_layers=['conv_4']\
-              , style_layers=['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']):
+    def build(self, style_img, content_img):
         """
         Build Neural Network
         """
+        content_layers = ['conv_4']
+        style_layers = ['conv_1', 'conv_2', 'conv_3', 'conv_4', 'conv_5']
         cnn = copy.deepcopy(self.cnn)
 
         normalization = Normalization().to(self.device)
