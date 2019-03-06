@@ -6,9 +6,9 @@ import torchvision.transforms as transforms
 
 def image_loader(image_name):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    imsize = 512 if torch.cuda.is_available() else 128
+    imsize = 1024 if torch.cuda.is_available() else 512
     loader = transforms.Compose([transforms.Resize(imsize), transforms.ToTensor()])
-    ratio = 4/3
+    ratio = 9/16
     image = Image.open(image_name)
     w, h = image.size
     if w/h <= ratio:
