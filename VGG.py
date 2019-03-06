@@ -102,7 +102,7 @@ class VGG16(nn.Module):
                 loss.backward()
 
                 run[0] += 1
-                if run[0] % 50 == 0:
+                if run[0] % 20 == 0:
                     print("run {}:".format(run))
                     print('Style Loss : {:4f} Content Loss: {:4f}'.format(style_score.item(), content_score.item()))
                     print()

@@ -41,9 +41,9 @@ def image_loader(style_path, content_path):
 #     plt.pause(0.001)
 
 
-def imsave(tensor):
+def imsave(tensor, name):
     unloader = transforms.ToPILImage()
     image = tensor.cpu().clone()
     image = image.squeeze(0)
     image = unloader(image)
-    image.save("output.jpg", "JPEG", optimize=True)
+    image.save("images/results/"+name, "JPEG", optimize=True)
