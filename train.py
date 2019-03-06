@@ -1,10 +1,9 @@
-from Loader import image_loader, imshow, imsave
+from Loader import image_loader, imsave
 from VGG import VGG16
 
 
 if __name__ == "__main__":
-    style_img = image_loader("images/picasso.jpg")
-    content_img = image_loader("images/marca.jpg")
+    style_img, content_img = image_loader("picasso.jpg", "souki.jpg")
     # input_img = content_img.clone()
 
     assert style_img.size() == content_img.size(), \
