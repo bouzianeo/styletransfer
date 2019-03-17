@@ -12,7 +12,6 @@ class ContentLoss(nn.Module):
         """
         Computes Content Loss between an input image and a target image (content image)
         :param input_image: Image to compute content loss on
-        :return: Unchanged input image
         """
         self.loss = F.mse_loss(input_image, self.target)
         return input_image
@@ -27,7 +26,6 @@ class StyleLoss(nn.Module):
         """
         Computes Style Loss between an input image and a target image (style image)
         :param input_image: Image to compute style loss on
-        :return: Unchanged input image
         """
         G = StyleLoss.gram_matrix(input_image)
         self.loss = F.mse_loss(G, self.target)
