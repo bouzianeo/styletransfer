@@ -4,14 +4,18 @@ import torch.nn.functional as F
 
 
 class ContentLoss(nn.Module):
-
     def __init__(self, target,):
         super(ContentLoss, self).__init__()
         self.target = target.detach()
 
-    def forward(self, input):
-        self.loss = F.mse_loss(input, self.target)
-        return input
+    def forward(self, input_image):
+        """
+        Computes Content Loss between an input image and a target image (content image)
+        :param input_image: Image to compute content loss on
+        :return: Unchanged input image
+        """
+        self.loss = F.mse_loss(input_image, self.target)
+        return input_image
 
 
 class StyleLoss(nn.Module):
@@ -19,20 +23,25 @@ class StyleLoss(nn.Module):
         super(StyleLoss, self).__init__()
         self.target = StyleLoss.gram_matrix(target_feature).detach()
 
-    def forward(self, input):
-        G = StyleLoss.gram_matrix(input)
+    def forward(self, input_image):
+        """
+        Computes Style Loss between an input image and a target image (style image)
+        :param input_image: Image to compute style loss on
+        :return: Unchanged input image
+        """
+        G = StyleLoss.gram_matrix(input_image)
         self.loss = F.mse_loss(G, self.target)
-        return input
+        return input_image
 
     @staticmethod
-    def gram_matrix(input):
+    def gram_matrix(input_image):
         """
         Compute grammian matrix.
         Allows to compare style and content images in the same basis (compute mse loss in that basis)
         """
-        a, b, c, d = input.size()  # Image tensor size, a = 1 car image RGB, b
+        a, b, c, d = input_image.size()  # Image tensor size, a = 1 car image RGB
 
-        features = input.view(a * b, c * d)  # resize input into \hat input
+        features = input_image.view(a * b, c * d)  # resize input into \hat input
 
         G = torch.mm(features, features.t())  # Multiply tensors
 

@@ -5,6 +5,12 @@ import os
 
 
 def image_loader(style_path, content_path):
+    """
+    Load style and content images
+    :param style_path: name of the style image
+    :param content_path: name of the content image
+    :return: style and content image in cv2 format
+    """
     style_path = os.path.join("images/style", style_path)
     content_path = os.path.join("images/content", content_path)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -26,21 +32,12 @@ def image_loader(style_path, content_path):
     return style_image.to(device, torch.float), content_image.to(device, torch.float)
 
 
-# def imshow(tensor, title=None, save=False):
-#     plt.figure()
-#     unloader = transforms.ToPILImage()
-#     image = tensor.cpu().clone()
-#     image = image.squeeze(0)
-#     image = unloader(image)
-#     if save:
-#         image.save("output.jpg", "JPEG", optimize=True)
-#     plt.imshow(image)
-#     if title is not None:
-#         plt.title(title)
-#     plt.pause(0.001)
-
-
 def imsave(tensor, name):
+    """
+    Transform a PyTorch tensor into a pil image and save it
+    :param tensor: Image tensor
+    :param name: Name of the saved image
+    """
     unloader = transforms.ToPILImage()
     image = tensor.cpu().clone()
     image = image.squeeze(0)

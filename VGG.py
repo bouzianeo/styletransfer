@@ -73,6 +73,14 @@ class VGG16(nn.Module):
         return model, style_losses, content_losses
 
     def forward(self, input_img, num_steps=300, style_weight=10000, content_weight=1):
+        """
+
+        :param input_img: content image that we want to use
+        :param num_steps: Number of neural network epochs
+        :param style_weight:
+        :param content_weight:
+        :return: input_img after style transfer
+        """
 
         # model, style_losses, content_losses = self.build(style_img=style_img, content_img=content_img)
         optimizer = VGG16.get_input_optimizer(input_img)
@@ -102,7 +110,7 @@ class VGG16(nn.Module):
                 loss.backward()
 
                 run[0] += 1
-                if run[0] % 20 == 0:
+                if run[0] % 50 == 0:
                     print("run {}:".format(run))
                     print('Style Loss : {:4f} Content Loss: {:4f}'.format(style_score.item(), content_score.item()))
                     print()
@@ -117,5 +125,8 @@ class VGG16(nn.Module):
 
     @staticmethod
     def get_input_optimizer(input_img):
+        """
+        Defines the used optimizer to fix network weights
+        """
         optimizer = optim.LBFGS([input_img.requires_grad_()])
         return optimizer
