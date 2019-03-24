@@ -4,17 +4,17 @@ import os
 
 
 if __name__ == "__main__":
-    # contents = os.listdir("images/content")[1:]
-    # styles = os.listdir("images/style")[1:]
-    # for content in contents:
-    #     for style in styles:
-    #         print("Content image : {} and style image : {}".format(content, style))
-    #         style_img, content_img = image_loader(style, content)
-    #
-    #         vggdream = VGG16(style_img, content_img)
-    #
-    #         output = vggdream(content_img, num_steps=300, style_weight=1000000, content_weight=1)  # style_weight=100000, content_weight=10
-    #         imsave(output, style[:-4] + "-" + content)
+    contents = os.listdir("images/content")[1:]
+    styles = os.listdir("images/style")[1:]
+    for content in contents:
+        for style in styles:
+            print("Content image : {} and style image : {}".format(content, style))
+            style_img, content_img = image_loader(style, content)
+
+            vggdream = VGG16(style_img, content_img)
+
+            output = vggdream(content_img, num_steps=100, style_weight=1000000, content_weight=1)  # style_weight=100000, content_weight=10
+            imsave(output, style[:-4] + "-" + content)
 
 
 
@@ -38,15 +38,15 @@ if __name__ == "__main__":
     #         output = vggdream(content_img, num_steps=300, style_weight=style_weight, content_weight=content_weight)
     #         imsave(output, str(style_weight) + "_" + str(content_weight) + "_" + style)
 
-    content = 'centraleext.jpg'
-    style = 'picasso.jpg'
-    style_img, content_img = image_loader(style, content)
-
-    assert style_img.size() == content_img.size(), \
-        "You have to to import style and content images of the same size"
-
-    vggdream = VGG16(style_img, content_img)
-    num_steps={50, 100, 200, 300, 500, 1000}
-    for num_step in num_steps :
-            output = vggdream(content_img, num_steps=num_step, style_weight=1000000, content_weight=1)
-            imsave(output, str(num_step) + "_" + style)
+    # content = 'centraleext.jpg'
+    # style = 'picasso.jpg'
+    # style_img, content_img = image_loader(style, content)
+    #
+    # assert style_img.size() == content_img.size(), \
+    #     "You have to to import style and content images of the same size"
+    #
+    # vggdream = VGG16(style_img, content_img)
+    # num_steps={50, 100, 200, 300, 500, 1000}
+    # for num_step in num_steps :
+    #         output = vggdream(content_img, num_steps=num_step, style_weight=1000000, content_weight=1)
+    #         imsave(output, str(num_step) + "_" + style)
