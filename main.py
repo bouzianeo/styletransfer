@@ -4,8 +4,8 @@ import os
 
 
 if __name__ == "__main__":
-    contents = os.listdir("images/content")
-    styles = os.listdir("images/style")
+    contents = [f for f in os.listdir("images/content") if not f.startswith('.')]
+    styles = [f for f in os.listdir("images/style") if not f.startswith('.')]
     for content in contents:
         for style in styles:
             print("Content image : {} and style image : {}".format(content, style))
