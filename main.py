@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
             vggdream = VGG16(style_img, content_img)
 
-            output = vggdream(content_img, num_steps=100, style_weight=1000000, content_weight=1)  # style_weight=100000, content_weight=10
+            output = vggdream(content_img, num_steps=200, style_weight=1000000, content_weight=1)  # style_weight=100000, content_weight=10
             imsave(output, style[:-4] + "-" + content)
 
 
