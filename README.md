@@ -1,6 +1,6 @@
 # styletransfer
 
-Projet commun de Deep Learning et de Vision par Ordinateur (des Données à la Connaissance) de l'option ISIA de l'école CentraleSupelec
+Projet commun de Deep Learning et de Vision par Ordinateur de l'option ISIA de l'école CentraleSupelec
 
 ## Installation 
 
