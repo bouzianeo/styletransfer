@@ -1,20 +1,37 @@
 from Loader import image_loader, imsave
 from VGG import VGG16
 import os
+import sys
 
 
 if __name__ == "__main__":
-    contents = [f for f in os.listdir("images/content") if not f.startswith('.')]
-    styles = [f for f in os.listdir("images/style") if not f.startswith('.')]
-    for content in contents:
-        for style in styles:
-            print("Content image : {} and style image : {}".format(content, style))
-            style_img, content_img = image_loader(style, content)
+    if len(sys.argv) != 3:
+        raise IOError("2 arguments are required (content and style image).")
+    content = sys.argv[1]
+    style = sys.argv[2]
+    print("Content image : {} and style image : {}".format(content, style))
+    style_img, content_img = image_loader(style, content)
 
-            vggdream = VGG16(style_img, content_img)
+    vggdream = VGG16(style_img, content_img)
 
-            output = vggdream(content_img, num_steps=200, style_weight=1000000, content_weight=1)  # style_weight=100000, content_weight=10
-            imsave(output, style[:-4] + "-" + content)
+    output = vggdream(content_img, num_steps=200, style_weight=1000000, content_weight=1)  # style_weight=100000, content_weight=10
+    imsave(output, style[:-4] + "-" + content)
+
+
+    ##################################################
+    #   Style Transfer for all images in directory   #
+    ##################################################
+    # contents = [f for f in os.listdir("images/content") if not f.startswith('.')]
+    # styles = [f for f in os.listdir("images/style") if not f.startswith('.')]
+    # for content in contents:
+    #     for style in styles:
+    #         print("Content image : {} and style image : {}".format(content, style))
+    #         style_img, content_img = image_loader(style, content)
+    #
+    #         vggdream = VGG16(style_img, content_img)
+    #
+    #         output = vggdream(content_img, num_steps=200, style_weight=1000000, content_weight=1)  # style_weight=100000, content_weight=10
+    #         imsave(output, style[:-4] + "-" + content)
 
 
 
